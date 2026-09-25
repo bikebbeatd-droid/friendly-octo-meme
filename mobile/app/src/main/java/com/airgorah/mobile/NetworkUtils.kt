@@ -9,7 +9,7 @@ object NetworkUtils {
     fun wifiInfo(context: Context): Map<String, String> {
         val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val info = wm.connectionInfo
-        return mapOf(
+        return linkedMapOf(
             "SSID" to (info.ssid ?: "<unknown>").trim('"'),
             "BSSID" to (info.bssid ?: "<unknown>"),
             "RSSI" to "${info.rssi} dBm",
@@ -17,7 +17,6 @@ object NetworkUtils {
             "Frequency" to "${info.frequency} MHz"
         )
     }
-
     fun connectivity(context: Context): String {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val n = cm.activeNetwork ?: return "Offline"
