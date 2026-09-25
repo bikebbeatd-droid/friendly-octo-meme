@@ -42,16 +42,32 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Set a unique Android version
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('android/app/build.gradle')
+          s = p.read_text()
+          s = s.replace('versionCode 1', 'versionCode ${{ github.run_number }}')
+          s = s.replace('versionName "1.0"', 'versionName "1.0.${{ github.run_number }}"')
+          p.write_text(s)
+          PY
+
       - name: Make Gradle executable
         run: chmod +x android/gradlew
 
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug --stacktrace
+        run: cd android && ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Verify APK output
+        run: |
+          test -s android/app/build/outputs/apk/debug/app-debug.apk
+          ls -lh android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: airgorah-android-apk
+          name: airgorah-android-apk-v1.0.${{ github.run_number }}
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
